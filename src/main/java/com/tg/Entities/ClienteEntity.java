@@ -57,4 +57,6 @@ public class ClienteEntity {
 
     @Column(length = 9)
     private String cep;
+
+    private String filiacao;
 }
