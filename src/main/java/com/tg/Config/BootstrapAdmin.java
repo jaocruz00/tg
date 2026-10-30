@@ -1,35 +1,22 @@
-package com.tg.Config;
-
-import com.tg.Entities.UsuarioEntity;
-import com.tg.Repositories.UsuarioRepository;
-import java.util.Locale;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-@Configuration
-public class BootstrapAdmin {
-  @Bean
-  ApplicationRunner criarAdmin(
-      UsuarioRepository repo,
-      PasswordEncoder encoder,
-      @Value("${app.bootstrap.email:}") String email,
-      @Value("${app.bootstrap.password:}") String senha) {
-    return args -> {
-      if (repo.count() == 0 && !email.isBlank()) {
-        if (senha.length() < 12
-            || senha.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 72)
-          throw new IllegalArgumentException(
-              "ADMIN_PASSWORD deve ter pelo menos 12 caracteres e até 72 bytes");
-        UsuarioEntity u = new UsuarioEntity();
-        u.setNome("Administrador");
-        u.setEmail(email.trim().toLowerCase(Locale.ROOT));
-        u.setPerfil("ADMIN");
-        u.setSenhaHash(encoder.encode(senha));
-        u.setAtivo(true);
-        repo.save(u);
-      }
-    };
-  }
-}
+package com.tg.Config;
+import com.tg.Entities.UsuarioEntity;
+import com.tg.Repositories.UsuarioRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.*;
+import org.springframework.stereotype.Component;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
+@Component @RequiredArgsConstructor
+public class BootstrapAdmin implements ApplicationRunner {
+ private final UsuarioRepository usuarios;
+ private final PasswordEncoder encoder;
+ @Value("${app.bootstrap.email:}") private String email;
+ @Value("${app.bootstrap.password:}") private String password;
+ @Override @Transactional public void run(ApplicationArguments args) {
+   if(usuarios.count()!=0 || email.isBlank() || password.isBlank()) return;
+   if(password.length()<12 || password.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>72) throw new IllegalArgumentException("Senha inicial inválida");
+   var u=new UsuarioEntity();u.setNome("Administrador");u.setEmail(email.trim().toLowerCase(java.util.Locale.ROOT));
+   u.setPerfil("ADMIN");u.setAtivo(true);u.setSenhaHash(encoder.encode(password));usuarios.save(u);
+ }
+}

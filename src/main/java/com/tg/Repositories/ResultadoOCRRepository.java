@@ -1,10 +1,14 @@
-package com.tg.Repositories;
-
-import com.tg.Entities.ResultadoOCREntity;
-import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-public interface ResultadoOCRRepository extends JpaRepository<ResultadoOCREntity, Long> {
-
-  Optional<ResultadoOCREntity> findByDocumentoId(Long documentoId);
-}
+package com.tg.Repositories;
+
+import com.tg.Entities.ResultadoOCREntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface ResultadoOCRRepository
+        extends JpaRepository<ResultadoOCREntity, Long> {
+
+    Optional<ResultadoOCREntity> findByDocumentoId(Long documentoId);
+    long countByStatus(String status);
+    void deleteByDocumentoId(Long id);
+}
